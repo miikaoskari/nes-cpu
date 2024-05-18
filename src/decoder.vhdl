@@ -1,14 +1,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity Instruction_Register is
+entity Decoder is
     Port (
         opcode : in std_logic_vector(7 downto 0);
         control : out std_logic_vector(15 downto 0)
     );
-end entity Instruction_Register;
+end entity Decoder;
 
-architecture Behavioral of Instruction_Register is
+architecture Behavioral of Decoder is
 begin
     process(opcode)
     begin
