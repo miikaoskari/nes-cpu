@@ -40,7 +40,7 @@ begin
                 temp <= unsigned_A - unsigned_B - not unsigned_carry & "00000000";
                 result <= std_logic_vector(temp(7 downto 0));
                 carry <= not temp(8);
-                zero <= '1' when temp(7 downto 0) = "00000000" else '0'; -- Added condition
+                zero <= '1' when temp(7 downto 0) = "00000000" else '0';
                 negative <= temp(7);
                 overflow <= (A(7) and not B(7) and not temp(7)) or (not A(7) and B(7) and temp(7));
             -- logical operations
