@@ -13,7 +13,7 @@ The NES’s CPU is a Ricoh 2A03, which is based on the popular 8-bit MOS Technol
 - Status Register (P)
     - N negative flag
     - V overflow
-    - empty
+    - unused
     - B break
     - D decimal
     - I interrupt
