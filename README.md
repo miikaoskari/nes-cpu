@@ -11,6 +11,15 @@ The NES’s CPU is a Ricoh 2A03, which is based on the popular 8-bit MOS Technol
 - Program Counter (PC)
 - Stack Pointer (SP)
 - Status Register (P)
+    - N negative flag
+    - V overflow
+    - empty
+    - B break
+    - D decimal
+    - I interrupt
+    - Z zero
+    - C carry
+
 [2]
 
 ## Addressing Modes
@@ -35,6 +44,7 @@ The NES’s CPU is a Ricoh 2A03, which is based on the popular 8-bit MOS Technol
 | $4020–$FFFF   | $BFE0 | Unmapped. Available for cartridge use. |
 | $6000–$7FFF   | $BFE0 | Usually cartridge RAM, when present. |
 | $8000–$FFFF   | $8000 | Usually cartridge ROM and mapper registers. |
+
 [3]
 
 ## Sources
