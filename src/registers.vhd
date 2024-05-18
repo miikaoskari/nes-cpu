@@ -1,3 +1,6 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
 entity Registers is
     port (
         clk : in std_logic;
@@ -8,7 +11,7 @@ entity Registers is
         Y : out std_logic_vector(7 downto 0); -- index
         SP : out std_logic_vector(7 downto 0); -- stack pointer
         PC : out std_logic_vector(15 downto 0); -- program counter
-        P : out std_logic_vector(7 downto 0); -- processor status
+        P : out std_logic_vector(7 downto 0) -- processor status
     );
 end entity Registers;
 
