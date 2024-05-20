@@ -3,8 +3,10 @@ use ieee.std_logic_1164.all;
 
 entity Decoder is
     Port (
+        clk : in std_logic;
+        reset : in std_logic;
         opcode : in std_logic_vector(7 downto 0);
-        control : out std_logic_vector(15 downto 0)
+        control : out std_logic_vector(7 downto 0)
     );
 end entity Decoder;
 
@@ -13,8 +15,9 @@ begin
     process(opcode)
     begin
         case opcode is
-            when "00000001" =>
-                control <= "0000000000000001";
+            when x"69" | x"65" | x"75" | x"6D" | x"7D" | x"79" | x"61" | x"71" -- adc
+
+                
             when others => -- TODO: handle other cases
                 control <= (others => '0');
         end case;
