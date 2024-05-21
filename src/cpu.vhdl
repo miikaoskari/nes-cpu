@@ -18,6 +18,50 @@ entity CPU is
     );
 end entity CPU;
 
+-- interrupts
+constant INT_RST : integer := 0;
+constant INT_NMI : integer := 1;
+constant INT_IRQ : integer := 2;
+constant INT_NONE : integer := 3;
+
+-- registers
+signal q_ac, d_ac : std_logic_vector(7 downto 0); -- accumulator
+signal q_x, d_x : std_logic_vector(7 downto 0); -- index register x
+signal q_y, d_y : std_logic_vector(7 downto 0); -- index register y
+
+-- processor status register
+signal p : std_logic_vector(7 downto 0);
+signal q_c, d_c : std_logic; -- carry
+signal q_d, d_d : std_logic; -- decimal mode
+signal q_i, d_i : std_logic; -- interrupt disable
+signal q_n, d_n : std_logic; -- negative
+signal q_v, d_v : std_logic; -- overflow
+signal q_z, d_z : std_logic; -- zero
+
+-- internal registers
+signal q_abh, d_abh : std_logic_vector(7 downto 0); -- address bus high
+signal q_abl, d_abl : std_logic_vector(7 downto 0); -- address bus low
+signal q_acr : std_logic; -- internal carry latch
+signal q_add, d_add : std_logic_vector(7 downto 0); -- internal adder
+signal q_ai, d_ai : std_logic_vector(7 downto 0); -- alu a reg
+signal q_bi, d_bi : std_logic_vector(7 downto 0); -- alu b reg
+signal q_dl, d_dl : std_logic_vector(7 downto 0); -- data latch
+signal q_ir, d_ir : std_logic_vector(7 downto 0); -- instruction register
+signal q_pch, d_pch : std_logic_vector(7 downto 0); -- program counter high
+signal q_pcl, d_pcl : std_logic_vector(7 downto 0); -- program counter low
+signal q_pchs, d_pchs : std_logic_vector(7 downto 0); -- program counter high
+signal q_pcls, d_pcls : std_logic_vector(7 downto 0); -- program counter low
+signal q_pd, d_pd : std_logic_vector(7 downto 0); -- pre decode
+signal q_s, d_s : std_logic_vector(7 downto 0); -- stack pointer
+signal q_t, d_t : std_logic_vector(7 downto 0); -- timing cycle
+
+-- buses
+signal adl : std_logic_vector(7 downto 0); -- address bus low
+signal adh_in, adh_out : std_logic_vector(7 downto 0); -- address bus high
+signal db_in, db_out : std_logic_vector(7 downto 0); -- data bus
+signal sb_in, sb_out : std_logic_vector(7 downto 0); -- stack bus
+
+
 architecture Behavioral of CPU is
     component ALU is
         port (
