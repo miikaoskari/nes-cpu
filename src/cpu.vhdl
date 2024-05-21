@@ -274,3 +274,131 @@ begin
         q_add <= d_add;
     end if;
 end process;
+
+-- time gen
+process (clk_in, reset_in)
+begin
+    d_t            <= T0;
+    d_irq_sel      <= q_irq_sel;
+    force_noinc_pc <= '0';
+
+    case q_t is
+        when T0 =>
+            d_t <= T1;
+        when T1 =>
+            if ((q_ir = CLC) or (q_ir = CLD)     or (q_ir = CLI)     or (q_ir = CLV)     or
+                (q_ir = HLT) or (q_ir = LDA_IMM) or (q_ir = LDX_IMM) or (q_ir = LDY_IMM) or
+                (q_ir = NOP) or (q_ir = SEC)     or (q_ir = SED)     or (q_ir = SEI)     or
+                (q_ir = TAX) or (q_ir = TAY)     or (q_ir = TSX)     or (q_ir = TXA)     or
+                (q_ir = TXS) or (q_ir = TYA)) then
+                d_t <= T0;
+            elsif (((q_ir = BCC) and q_c = '1') or ((q_ir = BCS) and q_c = '0') or
+                ((q_ir = BPL) and q_n = '1') or ((q_ir = BMI) and q_n = '0') or
+                ((q_ir = BVC) and q_v = '1') or ((q_ir = BVS) and q_v = '0') or
+                ((q_ir = BNE) and q_z = '1') or ((q_ir = BEQ) and q_z = '0')) then
+                d_t <= T0;
+            else
+                d_t <= T2;
+            end if;
+        when T2 =>
+            if ((q_ir = ADC_IMM) or (q_ir = AND_IMM) or (q_ir = ASL_ACC) or (q_ir = CMP_IMM) or
+                (q_ir = CPX_IMM) or (q_ir = CPY_IMM) or (q_ir = DEX)     or (q_ir = DEY)     or
+                (q_ir = EOR_IMM) or (q_ir = INX)     or (q_ir = INY)     or (q_ir = LSR_ACC) or
+                (q_ir = ORA_IMM) or (q_ir = ROL_ACC) or (q_ir = ROR_ACC) or (q_ir = SBC_IMM)) then
+                d_t <= T1;
+            elsif ((q_ir = JMP_ABS) or (q_ir = LDA_ZP) or (q_ir = LDX_ZP) or (q_ir = LDY_ZP) or
+                (q_ir = SAX_ZP)  or (q_ir = STA_ZP) or (q_ir = STX_ZP) or (q_ir = STY_ZP)) then
+                d_t <= T0;
+            elsif (acr = '0' and ((q_ir = ADC_ABSX) or (q_ir = ADC_ABSY) or (q_ir = AND_ABSX) or
+                (q_ir = AND_ABSY) or (q_ir = CMP_ABSX) or (q_ir = CMP_ABSY) or
+                (q_ir = EOR_ABSX) or (q_ir = EOR_ABSY) or (q_ir = LDA_ABSX) or
+                (q_ir = LDA_ABSY) or (q_ir = ORA_ABSX) or (q_ir = ORA_ABSY) or
+                (q_ir = SBC_ABSX) or (q_ir = SBC_ABSY))) then
+                d_t <= T4;
+            elsif ((acr = q_ai(7)) and ((q_ir = BCC) or (q_ir = BCS) or (q_ir = BEQ) or
+                (q_ir = BMI) or (q_ir = BNE) or (q_ir = BPL) or
+                (q_ir = BVC) or (q_ir = BVS))) then
+                d_t <= T0;
+            else
+                d_t <= T3;
+            end if;
+        when T3 =>
+            if ((q_ir = ADC_ZP) or (q_ir = AND_ZP) or (q_ir = BIT_ZP) or (q_ir = CMP_ZP) or
+                (q_ir = CPX_ZP) or (q_ir = CPY_ZP) or (q_ir = EOR_ZP) or (q_ir = ORA_ZP) or
+                (q_ir = PHA)    or (q_ir = PHP)    or (q_ir = SBC_ZP)) then
+                d_t <= T1;
+            elsif ((q_ir = BCC)     or (q_ir = BCS)     or (q_ir = BEQ)     or
+                (q_ir = BMI)     or (q_ir = BNE)     or (q_ir = BPL)     or
+                (q_ir = BVC)     or (q_ir = BVS)     or (q_ir = LDA_ABS) or
+                (q_ir = LDA_ZPX) or (q_ir = LDX_ABS) or (q_ir = LDX_ZPY) or
+                (q_ir = LDY_ABS) or (q_ir = LDY_ZPX) or (q_ir = PLA)     or
+                (q_ir = PLP)     or (q_ir = SAX_ABS) or (q_ir = SAX_ZPY) or
+                (q_ir = STA_ABS) or (q_ir = STA_ZPX) or (q_ir = STX_ABS) or
+                (q_ir = STX_ZPY) or (q_ir = STY_ABS) or (q_ir = STY_ZPX)) then
+                d_t <= T0;
+            elsif (acr = '0' and ((q_ir = ADC_INDY) or (q_ir = AND_INDY) or (q_ir = CMP_INDY) or
+                (q_ir = EOR_INDY) or (q_ir = LDA_INDY) or
+                (q_ir = ORA_INDY) or (q_ir = SBC_INDY))) then
+                d_t <= T5;
+            else
+                d_t <= T4;
+            end if;
+        when T4 =>
+            if ((q_ir = ADC_ABS) or (q_ir = ADC_ZPX) or (q_ir = AND_ABS) or (q_ir = AND_ZPX) or
+                (q_ir = BIT_ABS) or (q_ir = CMP_ABS) or (q_ir = CMP_ZPX) or (q_ir = CPX_ABS) or
+                (q_ir = CPY_ABS) or (q_ir = EOR_ABS) or (q_ir = EOR_ZPX) or (q_ir = ORA_ABS) or
+                (q_ir = ORA_ZPX) or (q_ir = SBC_ABS) or (q_ir = SBC_ZPX)) then
+                d_t <= T1;
+            elsif ((q_ir = ASL_ZP)   or (q_ir = DEC_ZP)   or (q_ir = INC_ZP)   or
+                (q_ir = JMP_IND)  or (q_ir = LDA_ABSX) or (q_ir = LDA_ABSY) or
+                (q_ir = LDX_ABSY) or (q_ir = LDY_ABSX) or (q_ir = LSR_ZP)   or
+                (q_ir = ROL_ZP)   or (q_ir = ROR_ZP)   or (q_ir = STA_ABSX) or
+                (q_ir = STA_ABSY)) then
+                d_t <= T0;
+            else
+                d_t <= T5;
+            end if;
+        when T5 =>
+            if ((q_ir = ADC_ABSX) or (q_ir = ADC_ABSY) or (q_ir = AND_ABSX) or
+                (q_ir = AND_ABSY) or (q_ir = CMP_ABSX) or (q_ir = CMP_ABSY) or
+                (q_ir = EOR_ABSX) or (q_ir = EOR_ABSY) or (q_ir = ORA_ABSX) or
+                (q_ir = ORA_ABSY) or (q_ir = SBC_ABSX) or (q_ir = SBC_ABSY)) then
+                d_t <= T1;
+            elsif ((q_ir = ASL_ABS)  or (q_ir = ASL_ZPX)  or (q_ir = DEC_ABS)  or
+                (q_ir = DEC_ZPX)  or (q_ir = INC_ABS)  or (q_ir = INC_ZPX)  or
+                (q_ir = JSR)      or (q_ir = LDA_INDX) or (q_ir = LDA_INDY) or
+                (q_ir = LSR_ABS)  or (q_ir = LSR_ZPX)  or (q_ir = ROL_ABS)  or
+                (q_ir = ROL_ZPX)  or (q_ir = ROR_ABS)  or (q_ir = ROR_ZPX)  or
+                (q_ir = RTI)      or (q_ir = RTS)      or (q_ir = SAX_INDX) or
+                (q_ir = STA_INDX) or (q_ir = STA_INDY)) then
+                d_t <= T0;
+            else
+                d_t <= T6;
+            end if;
+        when T6 =>
+            if ((q_ir = ADC_INDX) or (q_ir = ADC_INDY) or (q_ir = AND_INDX) or
+                (q_ir = AND_INDY) or (q_ir = CMP_INDX) or (q_ir = CMP_INDY) or
+                (q_ir = EOR_INDX) or (q_ir = EOR_INDY) or (q_ir = ORA_INDX) or
+                (q_ir = ORA_INDY) or (q_ir = SBC_INDX) or (q_ir = SBC_INDY)) then
+                d_t <= T1;
+            else
+                d_t <= T0;
+        when d_t = T1 =>
+            if (q_rst or q_nmi or not nirq_in)
+                d_ir = BRK;
+                force_noinc_pc = '1';
+                if q_rst = '1'
+                    d_irq_sel = INT_RST;
+                elsif q_nmi = '1' then
+                    d_irq_sel = INT_NMI;
+                else
+                    d_irq_sel = INT_IRQ;
+                end if;
+            else
+                d_ir = q_pd;
+                d_irq_sel = INT_BRK;
+            end if;
+        else
+            d_ir = q_ir;
+    end case;
+end process;
