@@ -3,8 +3,18 @@ use ieee.std_logic_1164.all;
 
 entity CPU is
     port (
-        clk : in std_logic;
-        reset : in std_logic;
+        clk_in : in std_logic; -- 100MHz clock
+        reset_in : in std_logic; -- reset
+        ready_in : in std_logic; -- ready signal 
+        --interrupt signals
+        nnmi_in : in std_logic; -- nmi interrupt signal
+        nres_in : in std_logic; -- res signal
+        nirq_in : in std_logic; -- irq signal
+        -- memory bus
+        d_in : in std_logic_vector(7 downto 0); -- data bus input
+        d_out : out std_logic_vector(7 downto 0); -- data bus output
+        a_out : out std_logic_vector(15 downto 0); -- address bus output
+        r_nw_out : out std_logic; -- read/write signal output
     );
 end entity CPU;
 
