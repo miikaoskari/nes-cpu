@@ -165,3 +165,38 @@ begin
 end process;
 
 d_clk_phase <= (others => '0') when q_clk_phase = "111111" else std_logic_vector(unsigned(q_clk_phase) + 1);
+
+-- interrupt and reset control
+signal q_irq_sel, d_irq_sel : std_logic_vector(1 downto 0);
+signal q_rst, d_rst : std_logic;
+signal q_nres : std_logic;
+signal q_nmi, d_nmi : std_logic;
+signal q_nnmi : std_logic;
+signal clear_rst : std_logic;
+signal clear_nmi : std_logic;
+signal force_noinc_pc : std_logic;
+
+process (clk_in, reset_in)
+begin
+    if reset_in = '1' then
+        q_irq_sel <= INTERRUPT_RST;
+        q_rst <= '0';
+        q_nres <= '1';
+        q_nmi <= '0';
+        q_nnmi <= '1';
+    elsif rising_edge(clk_in) and q_clk_phase = "000000" then
+        q_irq_sel <= d_irq_sel;
+        q_rst <= d_rst;
+        q_nres <= nres_in;
+        q_nmi <= d_nmi;
+        q_nnmi <= nnmi_in;
+    end if;
+end process;
+
+d_rst <= '0' when clear_rst = '1' else
+         '1' when nres_in = '0' and q_nres = '1' else
+         q_rst;
+
+d_nmi <= '0' when clear_nmi = '1' else
+         '1' when nnmi_in = '0' and q_nnmi = '1' else
+         q_nmi;   
