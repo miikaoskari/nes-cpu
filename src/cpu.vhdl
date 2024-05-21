@@ -402,3 +402,121 @@ begin
             d_ir = q_ir;
     end case;
 end process;
+
+-- decode rom output signals
+-- pc and program stream controls
+signal load_prg_byte : std_logic;
+signal load_prg_byte_noinc : std_logic;
+signal incpc_noload : std_logic;
+signal alusum_to_pch : std_logic;
+signal dl_to_pch : std_logic;
+signal alusum_to_pcl : std_logic;
+signal s_to_pcl : std_logic;
+
+-- instruction controls
+signal adc_op : std_logic;
+signal and_op : std_logic;
+signal asl_acc_op : std_logic;
+signal asl_mem_op : std_logic;
+signal bit_op : std_logic;
+signal cmp_op : std_logic;
+signal clc_op : std_logic;
+signal cld_op : std_logic;
+signal cli_op : std_logic;
+signal clv_op : std_logic;
+signal dec_op : std_logic;
+signal dex_op : std_logic;
+signal dey_op : std_logic;
+signal eor_op : std_logic;
+signal inc_op : std_logic;
+signal inx_op : std_logic;
+signal iny_op : std_logic;
+signal lda_op : std_logic;
+signal ldx_op : std_logic;
+signal ldy_op : std_logic;
+signal lsr_acc_op : std_logic;
+signal lsr_mem_op : std_logic;
+signal ora_op : std_logic;
+signal rol_acc_op : std_logic;
+signal rol_mem_op : std_logic;
+signal ror_acc_op : std_logic;
+signal ror_mem_op : std_logic;
+signal sec_op : std_logic;
+signal sed_op : std_logic;
+signal sei_op : std_logic;
+signal tax_op : std_logic;
+signal tay_op : std_logic;
+signal tsx_op : std_logic;
+signal txa_op : std_logic;
+signal txs_op : std_logic;
+signal tya_op : std_logic;
+
+-- data output register controls
+signal ac_to_dor : std_logic;
+signal p_to_dor : std_logic;
+signal pch_to_dor : std_logic;
+signal pcl_to_dor : std_logic;
+signal x_to_dor : std_logic;
+signal y_to_dor : std_logic;
+
+-- address bus controls
+signal aluinc_to_abh : std_logic;
+signal alusum_to_abh : std_logic;
+signal dl_to_abh : std_logic;
+signal ff_to_abh : std_logic;
+signal one_to_abh : std_logic;
+signal zero_to_abh : std_logic;
+signal aluinc_to_abl : std_logic;
+signal dl_to_abl : std_logic;
+signal fa_to_abl : std_logic;
+signal fb_to_abl : std_logic;
+signal fc_to_abl : std_logic;
+signal fd_to_abl : std_logic;
+signal fe_to_abl : std_logic;
+signal ff_to_abl : std_logic;
+signal s_to_abl : std_logic;
+
+-- alu controls
+signal ac_to_ai : std_logic;
+signal dl_to_ai : std_logic;
+signal one_to_ai : std_logic;
+signal neg1_to_ai : std_logic;
+signal s_to_ai : std_logic;
+signal x_to_ai : std_logic;
+signal y_to_ai : std_logic;
+signal zero_to_ai : std_logic;
+signal ac_to_bi : std_logic;
+signal aluinc_to_bi : std_logic;
+signal alusum_to_bi : std_logic;
+signal dl_to_bi : std_logic;
+signal invdl_to_bi : std_logic;
+signal neg1_to_bi : std_logic;
+signal pch_to_bi : std_logic;
+signal pcl_to_bi : std_logic;
+signal s_to_bi : std_logic;
+signal x_to_bi : std_logic;
+signal y_to_bi : std_logic;
+
+-- stack controls
+signal aluinc_to_s : std_logic;
+signal alusum_to_s : std_logic;
+signal dl_to_s : std_logic;
+
+-- process status controls
+signal dl_bits67_to_p : std_logic;
+signal dl_to_p : std_logic;
+signal one_to_s : std_logic;
+
+-- set all decode rom output to value
+
+-- decode rom logic
+
+-- alu
+
+-- random control logic
+
+-- update internal buses
+
+-- assign next ff states
+
+-- assign output signals
