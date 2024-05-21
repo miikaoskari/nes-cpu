@@ -194,9 +194,9 @@ begin
 end process;
 
 d_rst <= '0' when clear_rst = '1' else
-         '1' when nres_in = '0' and q_nres = '1' else
-         q_rst;
+        '1' when nres_in = '0' and q_nres = '1' else
+        q_rst;
 
 d_nmi <= '0' when clear_nmi = '1' else
-         '1' when nnmi_in = '0' and q_nnmi = '1' else
-         q_nmi;   
+        '1' when nnmi_in = '0' and q_nnmi = '1' else
+        q_nmi;
