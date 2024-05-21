@@ -61,174 +61,107 @@ signal adh_in, adh_out : std_logic_vector(7 downto 0); -- address bus high
 signal db_in, db_out : std_logic_vector(7 downto 0); -- data bus
 signal sb_in, sb_out : std_logic_vector(7 downto 0); -- stack bus
 
+-- internal signals
+-- adl bus
+signal add_adl : std_logic; -- adder hold register
+signal dl_adl : std_logic; -- data latch hold register
+signal pcl_adl : std_logic; -- program counter low hold register
+signal s_adl : std_logic; -- stack pointer hold register
 
-architecture Behavioral of CPU is
-    component ALU is
-        port (
-            A : in std_logic_vector(7 downto 0); -- 8-bit operands
-            B : in std_logic_vector(7 downto 0); -- 8-bit operands
-            opcode : in std_logic_vector(7 downto 0); -- 8-bit opcode
-            result : out std_logic_vector(7 downto 0); -- 8-bit result
-            zero : out std_logic; -- Z flag
-            carry : out std_logic; -- C flag
-            negative : out std_logic; -- N flag
-            overflow : out std_logic -- V flag
-        );
-    end component ALU;
+-- adh bus
+signal dl_adh : std_logic; -- data latch hold register
+signal pch_adh : std_logic; -- program counter high hold register
+signal zero_adh0 : std_logic; -- zero adh0
+signal zero_adh17 : std_logic; -- zero adh1
 
-    component Bus is
-        port (
-            clk : in std_logic;
-            reset : in std_logic;
-            data : in std_logic_vector(7 downto 0);
-            address : in std_logic_vector(7 downto 0);
-            read : in std_logic;
-            write : in std_logic;
-            data_out : out std_logic_vector(7 downto 0)
-        );
-    end component Bus;
+-- db bus
+signal ac_db : std_logic; -- accumulator data bus
+signal dl_db : std_logic; -- data latch data bus
+signal p_db : std_logic; -- processor status data bus
+signal pch_db : std_logic; -- program counter high data bus
+signal pcl_db : std_logic; -- program counter low data bus
 
-    component Control_Unit is
-        port (
-            clk : in std_logic; -- clock
-            reset : in std_logic; -- reset
-        );
-    end component Control_Unit;
+-- sb bus
+signal ac_sb : std_logic; -- accumulator stack bus
+signal add_sb : std_logic; -- adder stack bus
+signal x_sb : std_logic; -- index register x stack bus
+signal y_sb : std_logic; -- index register y stack bus
+signal s_sb : std_logic; -- stack pointer stack bus
 
-    component Decoder is
-        port (
-            opcode : in std_logic_vector(7 downto 0);
-            control : out std_logic_vector(15 downto 0)
-        );
-    end component Decoder;
+-- mosfet
+signal sb_adh : std_logic; -- stack bus address high
+signal sb_db : std_logic; -- stack bus data bus
 
-    component Memory is
-        port (
-            clk : in std_logic;
-            address : in std_logic_vector(15 downto 0);
-            data_in : in std_logic_vector(7 downto 0);
-            write_enable : in std_logic;
-            data_out : out std_logic_vector(7 downto 0)
-        );
-    end component Memory;
+-- load control
+signal adh_abh : std_logic; -- address bus high to address bus high
+signal adl_abl : std_logic; -- address bus low to address bus low
+signal sb_ac : std_logic; -- stack bus to accumulator
+signal adl_add : std_logic; -- address bus low to adder
+signal db_add : std_logic; -- data bus to adder
+signal invdb_add : std_logic; -- inverted data bus to adder
+signal sb_add : std_logic; -- stack bus to adder
+signal zero_add : std_logic; -- zero to adder
+signal adh_pch : std_logic; -- address bus high to program counter high
+signal adl_pcl : std_logic; -- address bus low to program counter low
+signal sb_s : std_logic; -- stack bus to stack pointer
+signal sb_x : std_logic; -- stack bus to index register x
+signal sb_y : std_logic; -- stack bus to index register y
 
-    component Registers is
-        port (
-            clk : in std_logic;
-            reset : in std_logic;
-            -- ports for each register
-            A : out std_logic_vector(7 downto 0); -- accumulator
-            X : out std_logic_vector(7 downto 0); -- index
-            Y : out std_logic_vector(7 downto 0); -- index
-            SP : out std_logic_vector(7 downto 0); -- stack pointer
-            PC : out std_logic_vector(15 downto 0); -- program counter
-            P : out std_logic_vector(7 downto 0) -- processor status
-        );
-    end component Registers;
+-- cpu status
+signal acr_c : std_logic; -- latch acr carry
+signal db0_c : std_logic; -- data bus 0 carry
+signal ir5_c : std_logic; -- instruction register 5 carry
+signal db3_d : std_logic; -- data bus 3 decimal
+signal ir5_d : std_logic; -- instruction register 5 decimal
+signal db2_i : std_logic; -- data bus 2 interrupt
+signal ir5_i : std_logic; -- instruction register 5 interrupt
+signal db7_n : std_logic; -- data bus 7 negative
+signal avr_v : std_logic; -- v register
+signal db6_v : std_logic; -- data bus 6 overflow
+signal zero_v : std_logic; -- zero to v register
+signal db1_z : std_logic; -- data bus 1 zero
+signal dbz_z : std_logic; -- data bus zero zero
 
-    -- internal signals
-    signal A, B, result : std_logic_vector(7 downto 0);
-    signal opcode : std_logic_vector(7 downto 0);
-    signal zero, carry, negative, overflow : std_logic;
-    signal control_signals : std_logic_vector(15 downto 0);
-    signal address : std_logic_vector(15 downto 0);
-    signal data_in, data_out : std_logic_vector(7 downto 0);
-    signal read, write : std_logic;
-    signal PC, SP, X, Y, P : std_logic_vector(15 downto 0);
+-- pc
+signal i_pc : std_logic; -- increment program counter
 
+-- alu
+signal ands : std_logic; -- and
+signal eors : std_logic; -- exclusive or
+signal ors : std_logic; -- or
+signal sums : std_logic; -- sum
+signal srs : std_logic; -- shift right
+signal addc : std_logic; -- carry in
+signal acr : std_logic; -- carry out
+signal avr : std_logic; -- overflow out
+
+-- ready control 
+signal rdy : std_logic; -- ready signal
+signal q_ready : std_logic; -- ready signal
+
+process (clk_in, reset_in)
 begin
-    -- alu
-    ALU_1: ALU port map (
-        A => A,
-        B => B,
-        opcode => opcode,
-        result => result,
-        zero => zero,
-        carry => carry,
-        negative => negative,
-        overflow => overflow
-    );
+    if reset_in = '1' then
+        q_ready <= '0';
+    elsif rising_edge(clk_in) then
+        q_ready <= ready_in;
+    end if;
+end process;
 
-    -- bus
-    Bus_1: Bus port map (
-        clk => clk,
-        reset => reset,
-        data => data,
-        address => address,
-        read => read,
-        write => write,
-        data_out => data_out
-    );
+rdy <= ready_in and q_ready;
 
-    -- control unit
-    Control_Unit_1: Control_Unit port map (
-        clk => clk,
-        reset => reset,
-    );
+-- clock phase gen
+signal q_clk_phase, d_clk_phase : std_logic_vector(5 downto 0);
 
-    -- decoder
-    Decoder_1: Decoder port map (
-        opcode => opcode,
-        control => control
-    );
-
-    -- memory
-    Memory_1: Memory port map (
-        clk => clk,
-        address => address,
-        data_in => data_in,
-        write_enable => write_enable,
-        data_out => data_out
-    );
-
-    -- registers
-    Registers_1: Registers port map (
-        clk => clk,
-        reset => reset,
-        A => A,
-        X => X,
-        Y => Y,
-        SP => SP,
-        PC => PC,
-        P => P
-    );
-
-    process(clk, reset)
-    begin
-        if reset = '1' then
-            -- Reset logic here
-            PC <= (others => '0'); -- Reset program counter
-            opcode <= (others => '0'); -- Reset opcode
-            control_signals <= (others => '0'); -- Reset control signals
-            read_enable <= '0';
-            write_enable <= '0';
-        elsif rising_edge(clk) then
-            -- Fetch instruction
-            address <= PC; -- Set address to program counter
-            read_enable <= '1'; -- Enable reading from memory
-            wait until memory_ready = '1'; -- Wait until memory is ready
-            opcode <= data_out; -- Read opcode from memory
-            read_enable <= '0'; -- Disable reading from memory
-            PC <= PC + 1; -- Increment program counter
-
-            -- Decode instruction
-            control_signals <= control_signals; -- Control signals are generated by decoder based on the opcode
-
-            -- Execute instruction
-            if control_signals(0) = '1' then
-                -- Example control signal handling for ALU operation
-                ALU_1: ALU port map (
-                    A => A,
-                    B => B,
-                    opcode => opcode,
-                    result => result,
-                    zero => zero,
-                    carry => carry,
-                    negative => negative,
-                    overflow => overflow
-                );
-                A <= result; -- Example result handling
-            end if;
+process (clk_in, reset_in)
+begin
+    if reset_in = '1' then
+        q_clk_phase <= "000001";
+    elsif rising_edge(clk_in) then
+        if rdy = '1' then
+            q_clk_phase <= d_clk_phase;
         end if;
-    end process;
-end architecture Behavioral;
+    end if;
+end process;
+
+d_clk_phase <= (others => '0') when q_clk_phase = "111111" else std_logic_vector(unsigned(q_clk_phase) + 1);
