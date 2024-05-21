@@ -18,6 +18,15 @@ entity CPU is
     );
 end entity CPU;
 
+-- time gen cycle states
+constant T0 : std_logic_vector(2 downto 0) := "000";
+constant T1 : std_logic_vector(2 downto 0) := "001";
+constant T2 : std_logic_vector(2 downto 0) := "010";
+constant T3 : std_logic_vector(2 downto 0) := "011";
+constant T4 : std_logic_vector(2 downto 0) := "100";
+constant T5 : std_logic_vector(2 downto 0) := "101";
+constant T6 : std_logic_vector(2 downto 0) := "110";
+
 -- interrupts
 constant INT_RST : integer := 0;
 constant INT_NMI : integer := 1;
@@ -200,3 +209,68 @@ d_rst <= '0' when clear_rst = '1' else
 d_nmi <= '0' when clear_nmi = '1' else
         '1' when nnmi_in = '0' and q_nnmi = '1' else
         q_nmi;
+
+-- phase 1 clocked registers
+process (clk_in, reset_in)
+begin
+    if reset_in = '1' then
+        q_ac <= x"00";
+        q_x <= x"00";
+        q_y <= x"00";
+        q_c <= '0';
+        q_d <= '0';
+        q_i <= '0';
+        q_n <= '0';
+        q_v <= '0';
+        q_z <= '0';
+        q_abh <= x"80";
+        q_abl <= x"00";
+        q_acr <= '0';
+        q_ai <= x"00";
+        q_bi <= x"00";
+        q_dor <= x"00";
+        q_ir <= NOP;
+        q_pchs <= x"80";
+        q_pcls <= x"00";
+        q_s <= x"FF";
+        q_t <= T1;
+    elsif rising_edge(clk_in) and rdy = '1' and q_clk_phase = "000000" then
+        q_ac   <= d_ac;
+        q_x    <= d_x;
+        q_y    <= d_y;
+        q_c    <= d_c;
+        q_d    <= d_d;
+        q_i    <= d_i;
+        q_n    <= d_n;
+        q_v    <= d_v;
+        q_z    <= d_z;
+        q_abh  <= d_abh;
+        q_abl  <= d_abl;
+        q_acr  <= acr;
+        q_ai   <= d_ai;
+        q_bi   <= d_bi;
+        q_dor  <= d_dor;
+        q_ir   <= d_ir;
+        q_pchs <= d_pchs;
+        q_pcls <= d_pcls;
+        q_s    <= d_s;
+        q_t    <= d_t;
+end process;
+
+-- phase 2 clocked registers
+process (clk_in, reset_in)
+begin
+    if reset_in = '1' then
+        q_pcl <= x"00";
+        q_pch <= x"80";
+        q_dl <= x"00";
+        q_pd <= x"00";
+        q_add <= x"00";
+    elsif rising_edge(clk_in) and rdy = '1' and q_clk_phase = "011100" then
+        q_pcl <= d_pcl;
+        q_pch <= d_pch;
+        q_dl  <= d_dl;
+        q_pd  <= d_pd;
+        q_add <= d_add;
+    end if;
+end process;
