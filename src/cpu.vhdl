@@ -1248,6 +1248,68 @@ begin
 end process;
 
 -- random control logic
+add_adl <= aluinc_to_abl or aluinc_to_bi or alusum_to_abl or alusum_to_bi or alusum_to_pcl;
+dl_adl <= dl_to_abl;
+pcl_adl <= load_prg_byte or load_prg_byte_noinc or pcl_to_bi;
+s_adl <= s_to_abl or s_to_bi or s_to_pcl;
+zero_adl0 <= fa_to_abl or fc_to_abl or fe_to_abl;
+zero_adl1 <= fc_to_abl or fd_to_abl;
+zero_adl2 <= fa_to_abl or fb_to_abl;
+dl_adh <= dl_to_abh or dl_to_pch;
+pch_adh <= load_prg_byte or load_prg_byte_noinc;
+zero_adh0 <= zero_to_abh;
+zero_adh17 <= one_to_abh or one_to_ai or zero_to_abh;
+ac_db <= ac_to_bi or ac_to_dor;
+dl_db <= dl_to_ai or dl_to_bi or dl_to_p or dl_to_s or invdl_to_bi or lda_op or ldx_op or ldy_op;
+p_db <= p_to_dor;
+pch_db <= pch_to_bi or pch_to_dor;
+pcl_db <= pcl_to_dor;
+ac_sb <= ac_to_ai or tax_op or tay_op;
+add_sb <= adc_op or aluinc_to_abh or aluinc_to_s or alusum_to_abh or alusum_to_pch or alusum_to_s or and_op or asl_acc_op or asl_mem_op or bit_op or cmp_op or dec_op or dex_op or dey_op or eor_op or inc_op or inx_op or iny_op or lsr_acc_op or lsr_mem_op or ora_op or rol_acc_op or rol_mem_op or ror_acc_op or ror_mem_op;
+x_sb <= txa_op or txs_op or x_to_ai or x_to_bi or x_to_dor;
+y_sb <= tya_op or y_to_ai or y_to_bi or y_to_dor;
+s_sb <= s_to_ai or tsx_op;
+sb_adh <= aluinc_to_abh or alusum_to_abh or alusum_to_pch or one_to_ai or one_to_i;
+sb_db <= adc_op or and_op or asl_acc_op or asl_mem_op or bit_op or cmp_op or dl_to_s or dec_op or dex_op or dey_op or dl_to_ai or eor_op or inc_op or inx_op or iny_op or lda_op or ldx_op or ldy_op or lsr_acc_op or lsr_mem_op or one_to_i or ora_op or rol_acc_op or rol_mem_op or ror_acc_op or ror_mem_op or tax_op or tay_op or tsx_op or txa_op or tya_op or x_to_bi or x_to_dor or y_to_bi or y_to_dor;
+adh_abh <= aluinc_to_abh or alusum_to_abh or dl_to_abh or ff_to_abh or load_prg_byte or load_prg_byte_noinc or one_to_abh or zero_to_abh;
+adl_abl <= aluinc_to_abl or alusum_to_abl or dl_to_abl or fa_to_abl or fb_to_abl or fc_to_abl or fd_to_abl or fe_to_abl or ff_to_abl or load_prg_byte or load_prg_byte_noinc or s_to_abl;
+adl_add <= aluinc_to_bi or alusum_to_bi or pcl_to_bi or s_to_bi;
+db_add <= ac_to_bi or dl_to_bi or neg1_to_bi or pch_to_bi or x_to_bi or y_to_bi;
+invdb_add <= invdl_to_bi;
+sb_s <= aluinc_to_s or alusum_to_s or dl_to_s or txs_op;
+zero_add <= zero_to_ai;
+sb_ac <= adc_op or and_op or asl_acc_op or eor_op or lda_op or lsr_acc_op or ora_op or rol_acc_op or ror_acc_op or txa_op or tya_op;
+sb_add <= ac_to_ai or dl_to_ai or neg1_to_ai or one_to_ai or s_to_ai or x_to_ai or y_to_ai;
+adh_pch <= alusum_to_pch or dl_to_pch;
+adl_pcl <= alusum_to_pcl or s_to_pcl;
+sb_x <= dex_op or inx_op or ldx_op or tax_op or tsx_op;
+sb_y <= dey_op or iny_op or ldy_op or tay_op;
+acr_c <= adc_op or asl_acc_op or asl_mem_op or cmp_op or lsr_acc_op or lsr_mem_op or rol_acc_op or rol_mem_op or ror_acc_op or ror_mem_op;
+db0_c <= dl_to_p;
+ir5_c <= clc_op or sec_op;
+db3_d <= dl_to_p;
+ir5_d <= cld_op or sed_op;
+db2_i <= dl_to_p or one_to_i;
+ir5_i <= cli_op or sei_op;
+db7_n <= adc_op or and_op or asl_acc_op or asl_mem_op or cmp_op or dec_op or dex_op or dey_op or dl_bits67_to_p or dl_to_p or eor_op or inc_op or inx_op or iny_op or lda_op or ldx_op or ldy_op or lsr_acc_op or lsr_mem_op or ora_op or rol_acc_op or rol_mem_op or ror_acc_op or ror_mem_op or tax_op or tay_op or tsx_op or txa_op or tya_op;
+avr_v <= adc_op;
+db6_v <= dl_bits67_to_p or dl_to_p;
+zero_v <= clv_op;
+db1_z <= dl_to_p;
+dbz_z <= adc_op or and_op or asl_acc_op or asl_mem_op or bit_op or cmp_op or dec_op or dex_op or dey_op or eor_op or inc_op or inx_op or iny_op or lda_op or ldx_op or ldy_op or lsr_acc_op or lsr_mem_op or ora_op or rol_acc_op or rol_mem_op or ror_acc_op or ror_mem_op or tax_op or tay_op or tsx_op or txa_op or tya_op;
+ands <= and_op or bit_op;
+eors <= eor_op;
+ors <= ora_op;
+sums <= adc_op or aluinc_to_abh or aluinc_to_abl or aluinc_to_bi or aluinc_to_s or alusum_to_abh or alusum_to_abl or alusum_to_bi or alusum_to_pch or alusum_to_pcl or alusum_to_s or asl_acc_op or asl_mem_op or cmp_op or dec_op or dex_op or dey_op or inc_op or inx_op or iny_op or rol_acc_op or rol_mem_op;
+srs <= lsr_acc_op or lsr_mem_op or ror_acc_op or ror_mem_op;
+
+if (adc_op or rol_acc_op or rol_mem_op or ror_acc_op or ror_mem_op) = '1' then
+    addc <= q_c;
+else
+    addc <= aluinc_to_abh or aluinc_to_abl or aluinc_to_bi or aluinc_to_s or cmp_op or inc_op or inx_op or iny_op;
+end if;
+
+i_pc <= (incpc_noload or load_prg_byte) and not force_noinc_pc;
 
 -- update internal buses
 
