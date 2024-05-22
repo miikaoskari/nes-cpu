@@ -510,7 +510,177 @@ signal one_to_s : std_logic;
 -- set all decode rom output to value
 
 -- decode rom logic
+process(all)
+begin
+    -- set all decode rom output to value
+    r_nw_out <= '1';
+    brk_out <= '0';
+    clear_rst <= '0';
+    clear_nmi <= '0';
 
+    if q_t = T0 then
+        load_prg_byte <= '1';
+    elsif q_t = T1 then
+        case q_ir is
+            when ADC_ABS | AND_ABS | ASL_ABS | BIT_ABS | CMP_ABS | CPX_ABS | CPY_ABS | DEC_ABS | EOR_ABS |
+                 INC_ABS | JMP_ABS | JMP_IND | LDA_ABS | LDX_ABS | LDY_ABS | LSR_ABS |
+                 ORA_ABS | ROL_ABS | ROR_ABS | SAX_ABS | SBC_ABS | 
+                 STA_ABS | STX_ABS | STY_ABS =>
+                load_prg_byte <= '1';
+                zero_to_ai    <= '1';
+                dl_to_bi      <= '1';
+            when ADC_ABSX | AND_ABSX | ASL_ABSX |  CMP_ABSX |  DEC_ABSX |  EOR_ABSX | INC_ABSX |
+                 LDA_ABSX | LDY_ABSX |  LSR_ABSX |  ORA_ABSX |  ROL_ABSX |
+                 ROR_ABSX | SBC_ABSX |  STA_ABSX =>
+                load_prg_byte <= '1';
+                x_to_ai       <= '1';
+                dl_to_bi      <= '1';
+            when ADC_ABSY | AND_ABSY | CMP_ABSY | EOR_ABSY | LDA_ABSY | LDX_ABSY |
+                 ORA_ABSY | SBC_ABSY | STA_ABSY =>
+                load_prg_byte <= '1';
+                y_to_ai       <= '1';
+                dl_to_bi      <= '1';
+            when ADC_IMM | AND_IMM | EOR_IMM | ORA_IMM =>
+                load_prg_byte <= '1';
+                ac_to_ai      <= '1';
+                dl_to_bi      <= '1';
+            when ADC_INDX| AND_INDX | CMP_INDX | EOR_INDX | LDA_INDX | ORA_INDX |
+                SAX_INDX | SBC_INDX | STA_INDX |
+                ADC_ZPX |  AND_ZPX |  ASL_ZPX |  CMP_ZPX |  DEC_ZPX |
+                EOR_ZPX |  INC_ZPX |  LDA_ZPX |  LDY_ZPX |
+                LSR_ZPX |  ORA_ZPX |  ROL_ZPX |  ROR_ZPX |  SBC_ZPX |  
+                STA_ZPX |  STY_ZPX =>
+                x_to_ai = '1';
+                dl_to_bi = '1';
+            when ADC_INDY | AND_INDY | CMP_INDY | EOR_INDY | LDA_INDY | ORA_INDY |
+                SBC_INDY | STA_INDY =>
+                zero_to_abh = '1';
+                dl_to_abh = '1';
+                zero_to_ai = '1';
+                dl_to_bi = '1';
+            when ADC_ZP | AND_ZP |  ASL_ZP | BIT_ZP | CMP_ZP | CPX_ZP | CPY_ZP | DEC_ZP |
+                EOR_ZP | INC_ZP |  LDA_ZP | LDX_ZP | LDY_ZP | LSR_ZP | ORA_ZP |
+                ROL_ZP | ROR_ZP | SBC_ZP =>
+                zero_to_abh = '1';
+                dl_to_abh = '1';
+            when ASL_ACC | LSR_ACC | ROL_ACC | ROR_ACC =>
+                ac_to_ai = '1';
+                ac_to_bi = '1';
+            when BCC | BCS | BEQ | BMI | BNE | BPL | BVC | BVS =>
+                load_prg_byte = '1';
+                dl_to_ai = '1';
+                pcl_to_ai = '1';
+            when BRK =>
+                if (q_irl_sel = INT_BRK) then
+                    incpc_noload = '1';
+                pch_to_dor = '1';
+                one_to_abh = '1';
+                s_to_abl = '1';
+                neg1_to_ai = '1';
+                s_to_bi = '1';
+            when CLC =>
+                clc_op = '1';
+            when CLD =>
+                cld_op = '1';
+            when CLI =>
+                cli_op = '1';
+            when CLV =>
+                clv_op = '1';
+            when CMP_IMM | SBC_IMM =>
+                load_prg_byte = '1';
+                ac_to_ai = '1';
+                invdl_to_bi = '1';
+            when CPX_IMM =>
+                load_prg_byte = '1';
+                x_to_ai = '1';
+                invdl_to_bi = '1';
+            when CPY_IMM =>
+                load_prg_byte = '1';
+                y_to_ai = '1';
+                invdl_to_bi = '1';
+            when DEX =>
+                x_to_ai = '1';
+                neg1_to_bi = '1';
+            when DEY =>
+                y_to_ai = '1';
+                neg1_to_bi = '1';
+            when HLT =>
+                brk_out <= '1' when q_clk_phase = "000001" and rdy = '1' else '0';
+            when INX =>
+                zero_to_ai <= '1';
+                x_to_bi <= '1';
+            when INY =>
+                zero_to_ai <= '1';
+                y_to_bi <= '1';
+            when JSR =>
+                incpc_noload <= '1';
+                one_to_abh <= '1';
+                s_to_abl <= '1';
+                s_to_bi <= '1';
+                dl_to_s <= '1';
+            when LDX_ZPY | SAX_ZPY | STX_ZPY =>
+                y_to_ai <= '1';
+                dl_to_bi <= '1';
+            when LDA_IMM =>
+                load_prg_byte <= '1';
+                lda_op <= '1';
+            when LDX_IMM =>
+                load_prg_byte <= '1';
+                ldx_op <= '1';
+            when LDY_IMM =>
+                load_prg_byte <= '1';
+                ldy_op <= '1';
+            when PHA =>
+                ac_to_dor <= '1';
+                one_to_abh <= '1';
+                s_to_abl <= '1';
+            when PHP =>
+                p_to_dor <= '1';
+                one_to_abh <= '1';
+                s_to_abl <= '1';
+            when PLA | PLP | RTI | RTS =>
+                zero_to_ai <= '1';
+                s_to_bi <= '1';
+            when SEC =>
+                sec_op <= '1';
+            when SED =>
+                sed_op <= '1';
+            when SEI =>
+                sei_op <= '1';
+            when SAX_ZP =>
+                ac_to_dor <= '1';
+                x_to_dor <= '1';
+                zero_to_abh <= '1';
+                dl_to_abl <= '1';
+            when STA_ZP =>
+                ac_to_dor <= '1';
+                zero_to_abh <= '1';
+                dl_to_abl <= '1';
+            when STX_ZP =>
+                x_to_dor <= '1';
+                zero_to_abh <= '1';
+                dl_to_abl <= '1';
+            when STY_ZP =>
+                y_to_dor <= '1';
+                zero_to_abh <= '1';
+                dl_to_abl <= '1';
+            when TAX =>
+                tax_op <= '1';
+            when TAY =>
+                tay_op <= '1';
+            when TSX =>
+                tsx_op <= '1';
+            when TXA =>
+                txa_op <= '1';
+            when TXS =>
+                txs_op <= '1';
+            when TYA =>
+                tya_op <= '1';
+            when others =>
+                null; -- do nothing
+        end case;
+    elsif q_t = T2 then
+        case q_ir
 -- alu
 
 -- random control logic
