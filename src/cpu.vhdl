@@ -1312,7 +1312,127 @@ end if;
 i_pc <= (incpc_noload or load_prg_byte) and not force_noinc_pc;
 
 -- update internal buses
+adh_in(7 downto 1) <= q_dl(7 downto 1) when dl_adh = '1' else
+                      q_pch(7 downto 1) when pch_adh = '1' else
+                      "0000000" when zero_adh17 = '1' else
+                      "1111111";
+
+adh_in(0) <= q_dl(0) when dl_adh = '1' else
+             q_pch(0) when pch_adh = '1' else
+             '0' when zero_adh0 = '1' else
+             '1';
+
+adl(7 downto 3) <= q_add(7 downto 3) when add_adl = '1' else
+                   q_dl(7 downto 3) when dl_adl = '1' else
+                   q_pcl(7 downto 3) when pcl_adl = '1' else
+                   q_s(7 downto 3) when s_adl = '1' else
+                   "11111";
+
+adl(2) <= q_add(2) when add_adl = '1' else
+          q_dl(2) when dl_adl = '1' else
+          q_pcl(2) when pcl_adl = '1' else
+          q_s(2) when s_adl = '1' else
+          '0' when zero_adl2 = '1' else
+          '1';
+
+adl(1) <= q_add(1) when add_adl = '1' else
+          q_dl(1) when dl_adl = '1' else
+          q_pcl(1) when pcl_adl = '1' else
+          q_s(1) when s_adl = '1' else
+          '0' when zero_adl1 = '1' else
+          '1';
+
+adl(0) <= q_add(0) when add_adl = '1' else
+          q_dl(0) when dl_adl = '1' else
+          q_pcl(0) when pcl_adl = '1' else
+          q_s(0) when s_adl = '1' else
+          '0' when zero_adl0 = '1' else
+          '1';
+
+db_in <= "11111111" and ((not ac_db and q_ac) or
+                         (not dl_db and q_dl) or
+                         (not p_db and p) or
+                         (not pch_db and q_pch) or
+                         (not pcl_db and q_pcl));
+
+sb_in <= "11111111" and ((not ac_sb and q_ac) or
+                         (not add_sb and q_add) or
+                         (not s_sb and q_s) or
+                         (not x_sb and q_x) or
+                         (not y_sb and q_y));
+
+adh_out <= (adh_in and sb_in and db_in) when (sb_adh and sb_db) = '1' else
+           (adh_in and sb_in) when sb_adh = '1' else
+           adh_in;
+
+db_out <= (db_in and sb_in and adh_in) when (sb_db and sb_adh) = '1' else
+          (db_in and sb_in) when sb_db = '1' else
+          db_in;
+
+sb_out <= (sb_in and db_in and adh_in) when (sb_adh and sb_db) = '1' else
+          (sb_in and db_in) when sb_db = '1' else
+          (sb_in and adh_in) when sb_adh = '1' else
+          sb_in;
 
 -- assign next ff states
+d_ac <= sb_out when sb_ac = '1' else q_ac;
+d_x <= sb_out when sb_x = '1' else q_x;
+d_y <= sb_out when sb_y = '1' else q_y;
+d_c <= acr when acr_c = '1' else
+       db_out(0) when db0_c = '1' else
+       q_ir(5) when ir5_c = '1' else q_c;
+d_d <= db_out(3) when db3_d = '1' else
+       q_ir(5) when ir5_d = '1' else q_d;
+d_i <= db_out(2) when db2_i = '1' else
+       q_ir(5) when ir5_i = '1' else q_i;
+d_n <= db_out(7) when db7_n = '1' else q_n;
+d_v <= avr when avr_v = '1' else
+       db_out(6) when db6_v = '1' else
+       '0' when zero_v = '1' else q_v;
+d_z <= db_out(1) when db1_z = '1' else
+       not or_reduce(db_out) when dbz_z = '1' else q_z;
+d_abh <= adh_out when adh_abh = '1' else q_abh;
+d_abl <= adl when adl_abl = '1' else q_abl;
+d_ai <= sb_out when sb_add = '1' else
+        "00000000" when zero_add = '1' else q_ai;
+d_bi <= adl when adl_add = '1' else
+        db_out when db_add = '1' else
+        not db_out when invdb_add = '1' else q_bi;
+d_dl <= d_in when r_nw_out = '1' else q_dl;
+d_dor <= db_out;
+d_pd <= d_in when r_nw_out = '1' else q_pd;
+d_s <= sb_out when sb_s = '1' else q_s;
+
+d_pchs <= adh_out when adh_pch = '1' else q_pch;
+d_pcls <= adl when adl_pcl = '1' else q_pcl;
+d_pch <= std_logic_vector(unsigned(q_pchs & q_pcls) + 1) when i_pc = '1' else q_pchs;
+d_pcl <= std_logic_vector(unsigned(q_pchs & q_pcls) + 1) when i_pc = '1' else q_pcls;
+
+-- combine full processor status register
+p <= q_n & q_v & '1' & (q_irq_sel = INTERRUPT_BRK) & q_d & q_i & q_z & q_c;
 
 -- assign output signals
+d_out <= q_dor;
+a_out <= q_abh & q_abl;
+
+process(dbgreg_sel_in)
+begin
+  case dbgreg_sel_in is
+    when REGSEL_AC =>
+      dbgreg_out <= q_ac;
+    when REGSEL_X =>
+      dbgreg_out <= q_x;
+    when REGSEL_Y =>
+      dbgreg_out <= q_y;
+    when REGSEL_P =>
+      dbgreg_out <= p;
+    when REGSEL_PCH =>
+      dbgreg_out <= q_pch;
+    when REGSEL_PCL =>
+      dbgreg_out <= q_pcl;
+    when REGSEL_S =>
+      dbgreg_out <= q_s;
+    when others =>
+      dbgreg_out <= (others => 'X');
+  end case;
+end process;
