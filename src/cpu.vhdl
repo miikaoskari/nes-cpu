@@ -1224,9 +1224,28 @@ begin
     end if;
 end process;
 
-
-
 -- alu
+process(all)
+begin
+    acr <= '0';
+    avr <= '0';
+    if ands = '1' then
+        d_add <= q_ai and q_bi;
+    elsif eors = '1' then
+        d_add <= q_ai xor q_bi;
+    elsif ors = '1' then
+        d_add <= q_ai or q_bi;
+    elsif sums = '1' then
+        d_add <= std_logic_vector(unsigned(q_ai) + unsigned(q_bi) + unsigned(addc));
+        acr <= d_add(7) xor q_ai(7) xor q_bi(7);
+        avr <= acr;
+    elsif srs = '1' then
+        d_add <= std_logic_vector(unsigned(addc) sll 7) or (q_bi(7 downto 1) & '0');
+        acr <= q_bi(0);
+    else
+        d_add <= q_add;
+    end if;
+end process;
 
 -- random control logic
 
