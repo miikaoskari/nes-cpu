@@ -294,7 +294,7 @@ begin
     process (clk_in, reset_in)
     begin
         if reset_in = '1' then
-            q_irq_sel <= INTERRUPT_RST;
+            q_irq_sel <= INT_RST;
             q_rst <= '0';
             q_nres <= '1';
             q_nmi <= '0';
@@ -1040,11 +1040,11 @@ begin
                     r_nw_out  <= '0';
                     one_to_i  <= '1';
                     case q_irq_sel is
-                        when INTERRUPT_RST =>
+                        when INT_RST =>
                             fc_to_abl <= '1';
-                        when INTERRUPT_NMI =>
+                        when INT_NMI =>
                             fa_to_abl <= '1';
-                        when INTERRUPT_IRQ | INTERRUPT_BRK =>
+                        when INT_IRQ | INT_BRK =>
                             fe_to_abl <= '1';
                         when others =>
                             -- Handle the default case here
@@ -1138,11 +1138,11 @@ begin
                     ff_to_abh <= '1';
                     dl_to_s   <= '1';
                     case q_irq_sel is
-                        when INTERRUPT_RST =>
+                        when INT_RST =>
                             fd_to_abl <= '1';
-                        when INTERRUPT_NMI =>
+                        when INT_NMI =>
                             fb_to_abl <= '1';
-                        when INTERRUPT_IRQ | INTERRUPT_BRK =>
+                        when INT_IRQ | INT_BRK =>
                             ff_to_abl <= '1';
                         when others =>
                             -- Handle the default case here
@@ -1208,9 +1208,9 @@ begin
                     s_to_abl    <= '1';
                     alusum_to_s <= '1';
                     case q_irq_sel is
-                        when INTERRUPT_RST =>
+                        when INT_RST =>
                             clear_rst <= '1';
-                        when INTERRUPT_NMI =>
+                        when INT_NMI =>
                             clear_nmi <= '1';
                         when others =>
                             -- Handle the default case here
@@ -1415,7 +1415,7 @@ begin
     d_pcl <= std_logic_vector(unsigned(q_pchs & q_pcls) + 1) when i_pc = '1' else q_pcls;
 
     -- combine full processor status register
-    p <= q_n & q_v & '1' & (q_irq_sel = INTERRUPT_BRK) & q_d & q_i & q_z & q_c;
+    p <= q_n & q_v & '1' & (q_irq_sel = INT_BRK) & q_d & q_i & q_z & q_c;
 
     -- assign output signals
     d_out <= q_dor;
